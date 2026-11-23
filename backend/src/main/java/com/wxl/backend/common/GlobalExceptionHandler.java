@@ -2,6 +2,7 @@ package com.wxl.backend.common;
 
 import java.util.stream.Collectors;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -86,6 +87,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<Void>> handleDuplicateKey(DuplicateKeyException ex) {
         log.warn("唯一键冲突: {}", ex.getMostSpecificCause().getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Result.fail(ResultCode.CONFLICT, "数据已存在"));
+    }
+
+    /** 未登录或 token 失效 */
+    @ExceptionHandler(NotLoginException.class)
+    public ResponseEntity<Result<Void>> handleNotLogin(NotLoginException ex) {
+        log.warn("未登录访问: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Result.fail(ResultCode.UNAUTHORIZED));
     }
 
     /** 兜底：未预期异常，日志保留堆栈，响应只给通用提示 */

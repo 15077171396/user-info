@@ -1,14 +1,18 @@
 package com.wxl.backend.controller;
 
 import com.wxl.backend.common.Result;
+import com.wxl.backend.dto.LoginRequest;
+import com.wxl.backend.dto.LoginResponse;
 import com.wxl.backend.dto.RegisterRequest;
 import com.wxl.backend.dto.RegisterResponse;
 import com.wxl.backend.dto.SendCodeRequest;
+import com.wxl.backend.dto.UserInfo;
 import com.wxl.backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +41,24 @@ public class AuthController {
     @PostMapping("/register")
     public Result<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         return Result.success(authService.register(request));
+    }
+
+    @Operation(summary = "邮箱密码登录", description = "登录成功返回 token，后续请求放在请求头 satoken 中")
+    @PostMapping("/login")
+    public Result<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return Result.success(authService.login(request));
+    }
+
+    @Operation(summary = "退出登录", description = "使当前 token 失效")
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        authService.logout();
+        return Result.success();
+    }
+
+    @Operation(summary = "当前登录用户", description = "根据请求头中的 token 返回用户信息")
+    @GetMapping("/me")
+    public Result<UserInfo> me() {
+        return Result.success(authService.currentUser());
     }
 }

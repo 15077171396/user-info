@@ -65,3 +65,20 @@ logging:
 server:
   # 部署在 Nginx 等反向代理之后时改为 framework，getRemoteAddr() 才能取到真实客户端 IP（IP 限流依赖它）
   forward-headers-strategy: none
+
+sa-token:
+  # 前端通过请求头 satoken 携带 token
+  token-name: satoken
+  # 有效期 7 天（秒）
+  timeout: 604800
+  # -1 表示不启用活跃续期
+  active-timeout: -1
+  # 允许多端登录
+  is-concurrent: true
+  # 每次登录签发新 token，不共用
+  is-share: false
+  token-style: uuid
+  # 纯 API 场景，不读写 Cookie
+  is-read-cookie: false
+  # 不打印启动 banner
+  is-print: false
