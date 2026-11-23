@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: backend
+  config:
+    # 本地私有配置（数据库密码、邮箱授权码等），文件不进版本库
+    import: optional:file:./application-local.yaml
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      # 命令执行超时 / 建连超时
+      timeout: 3s
+      connect-timeout: 3s
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 库名按实际调整；账号密码走环境变量，不写死在配置文件里
+    url: jdbc:mysql://localhost:3306/user_info?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&sslMode=DISABLED&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  mail:
+    # QQ 邮箱 SMTP；password 填「授权码」不是登录密码
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# OpenAPI 规范：/v3/api-docs    Knife4j 文档界面：/doc.html
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    # Knife4j 4.5.0 对 OpenAPI 3.1 支持不完整，固定输出 3.0
+    version: OPENAPI_3_0
+
+mybatis-plus:
+  configuration:
+    # 数据库下划线字段自动映射到实体驼峰属性
+    map-underscore-to-camel-case: true
+    # SQL 走 slf4j 输出，配合下面的 logging.level 生效
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    # 关闭启动时的 MyBatis-Plus 图标
+    banner: false
+    db-config:
+      # 主键策略：雪花算法（19 位长整型）
+      id-type: assign_id
+
+logging:
+  level:
+    # 打印 Mapper 执行的 SQL 与参数，生产环境可调成 info
+    com.wxl.backend.mapper: debug
+
+server:
+  # 部署在 Nginx 等反向代理之后时改为 framework，getRemoteAddr() 才能取到真实客户端 IP（IP 限流依赖它）
+  forward-headers-strategy: none
